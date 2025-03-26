@@ -1,0 +1,9 @@
+venv/
+.DS_Store
+runs/
+Dataset/
+legalpdf/
+Legal Compilance/medwaste_guardian_rag.zip
+stt/vosk-model-en-in-0.5/
+Legal\ Compilance/medwaste_guardian_rag.zip
+
