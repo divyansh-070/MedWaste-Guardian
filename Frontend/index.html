@@ -1,0 +1,103 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedWaste AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>  
+<body>
+    <img class="image-gradient" src="gradient.png" alt="gradient">
+    <div class="layer-blur"></div>
+
+    <div class="container">
+        <header>
+            <h1 class="logo">MED WASTE</h1>
+
+            <nav>
+                <a href="#">DESCRIPTION</a>
+                <a href="#">ABOUT</a>
+                <a href="#">TESTIMONIAL</a>
+                <a href="#">FUTURE ROADMAP</a>
+            </nav>
+            <button class="btn-signing">LOG IN</button>
+        </header>
+
+        <main>
+            <div class="content">
+                <div class="tag-box">
+                    <div class="tag">AI-DRIVEN BIOMEDICAL WASTE MANAGEMENT &wedbar;</div>
+                </div>
+
+                <h1>MULTI-AGENT AI FOR<br> WASTE CLASSIFICATION & LEGAL COMPLIANCE</h1>
+
+                <p class="description">
+                    MedWaste AI is a multi-agent AI system designed for automated biomedical waste classification
+                    and legal compliance.
+                </p>
+
+                <div class="buttons"> 
+                    <a href="#" class="btn-get-started">DOCUMENTATION &gt;</a>
+                    <a href="#" class="btn-signing-main">Get Started &gt;</a>
+                </div>
+
+                <!-- 🔹 STT Button & Transcription Display -->
+                <button id="startSTT" class="btn-signing-main">Start Speech Recognition</button>
+                <p id="transcribedText">Transcription will appear here...</p>
+
+            </div>
+        </main>  
+
+        <!-- 3D Robot -->
+        <spline-viewer class="robot-3d" url="https://prod.spline.design/i4imzoUBeMfjljPj/scene.splinecode"></spline-viewer>
+    </div>
+
+    <!-- Import Spline 3D Viewer -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.79/build/spline-viewer.js"></script>
+
+    <!-- 🔹 JavaScript for STT API -->
+    <script>
+        async function startSTT() {
+            console.log("Starting Speech-to-Text...");
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/stt", {
+                    method: "POST"
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log("STT API Response:", data.text);
+                    document.getElementById("transcribedText").innerText = data.text;
+                } else {
+                    console.error("STT API Error:", data.error);
+                    document.getElementById("transcribedText").innerText = "Error: " + data.error;
+                }
+            } catch (error) {
+                console.error("STT API Error:", error);
+                document.getElementById("transcribedText").innerText = "API Error. Make sure Flask is running.";
+            }
+        }
+
+        // Attach function to button click
+        document.getElementById("startSTT").addEventListener("click", startSTT);
+        document.getElementById("start")
+          
+
+    </script>
+
+</body>  
+</html> 
+
+
+
+
+
+
+
+
+
+
+
+
