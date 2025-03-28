@@ -4,113 +4,107 @@ import uvicorn
 import os
 import json
 import numpy as np
+import cv2
+import wave
+from io import BytesIO
 from vosk import Model, KaldiRecognizer
 from llama_index.core import VectorStoreIndex, StorageContext, load_index_from_storage
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from transformers import pipeline
-import cv2
 from ultralytics import YOLO
+from llama_index.llms.huggingface import HuggingFaceLLM  
 
 # Initialize FastAPI
 app = FastAPI()
 
-# --- Load YOLOv8 Model for Waste Classification ---
-yolo_model = YOLO("/Users/devayushrout/Desktop/MedWaste Guardian/WasteClassification/resultsyolov8/yolov8_medical_waste/weights/best.pt")
+# --- Global Models ---
+yolo_model = None
+vosk_model = None
+recognizer = None
+query_engine = None
 
-# --- Load Vosk Speech-to-Text Model ---
-vosk_model_path = "/Users/devayushrout/Desktop/MedWaste Guardian/stt/vosk-model-en-in-0.5"
-vosk_model = Model(vosk_model_path)
-recognizer = KaldiRecognizer(vosk_model, 16000)
+def load_models():
+    """Lazy load models to avoid unnecessary memory usage."""
+    global yolo_model, vosk_model, recognizer, query_engine
+    if yolo_model is None:
+        yolo_model = YOLO("/Users/devayushrout/Desktop/MedWaste Guardian/WasteClassification/resultsyolov8/yolov8_medical_waste/weights/best.pt")
 
-# --- Load Legal Compliance RAG Index ---
-index_dir = "/Users/devayushrout/Desktop/MedWaste Guardian/Legal Compilance/medwaste_index"
+    if vosk_model is None:
+        vosk_model = Model("/Users/devayushrout/Desktop/MedWaste Guardian/stt/vosk-model-en-in-0.5")
+        recognizer = KaldiRecognizer(vosk_model, 16000)
 
-# Force LlamaIndex to use HuggingFace embeddings
-device = "cuda" if torch.cuda.is_available() else "cpu"
-embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2", device=device)
-from llama_index.core.settings import Settings
-Settings.embed_model = embed_model  # Ensure no OpenAI embeddings
+    if query_engine is None:
+        index_dir = "/Users/devayushrout/Desktop/MedWaste Guardian/Legal Compilance/medwaste_index"
+        storage_context = StorageContext.from_defaults(persist_dir=index_dir)
+        index = load_index_from_storage(storage_context)
+        llm = HuggingFaceLLM(
+            model_name="meta-llama/Llama-2-7b-chat-hf",
+            model_kwargs={"cache_dir": "/Users/devayushrout/.cache/huggingface"}
+        )
+        query_engine = index.as_query_engine(llm=llm)
 
-# Load the index
-storage_context = StorageContext.from_defaults(persist_dir=index_dir)
-index = load_index_from_storage(storage_context)
-from llama_index.llms.huggingface import HuggingFaceLLM  
-
-# Initialize LLaMA-2 model  
-llm = HuggingFaceLLM(model_name="meta-llama/Llama-2-7b-chat-hf")  
-
-query_engine = index.as_query_engine(llm=llm)
-
+async def convert_audio_to_wav(audio_bytes):
+    """Convert input audio bytes to 16kHz WAV format."""
+    try:
+        audio_stream = BytesIO(audio_bytes)
+        with wave.open(audio_stream, 'rb') as wf:
+            if wf.getframerate() != 16000:
+                raise ValueError("Audio must be 16kHz sample rate")
+        return audio_bytes
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid audio format. Please upload a 16kHz WAV file.")
 
 @app.post("/stt/")
 async def speech_to_text(audio: UploadFile = File(...)):
     """Convert Speech to Text using Vosk."""
+    load_models()
     try:
         audio_data = await audio.read()
+        audio_data = await convert_audio_to_wav(audio_data)
         if recognizer.AcceptWaveform(audio_data):
             result = json.loads(recognizer.Result())
             return {"transcription": result.get("text", "No text detected")}
         return {"error": "Speech recognition failed"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid audio: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error in STT: {str(e)}")
 
 @app.post("/classify/")
 async def classify_waste(image: UploadFile = File(...)):
     """Classify waste using YOLOv8."""
+    load_models()
     try:
         image_data = np.frombuffer(await image.read(), np.uint8)
         img = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
-
         if img is None:
             raise ValueError("Invalid image format")
 
         results = yolo_model(img)
-        
         waste_classes = []
         for r in results:
             for box in r.boxes:
                 cls = int(box.cls[0].item())
-                waste_classes.append(yolo_model.names[cls])
+                if hasattr(yolo_model, "names"):
+                    waste_classes.append(yolo_model.names[cls])
+                else:
+                    waste_classes.append(f"Class {cls}")
 
         return {"classified_waste": waste_classes}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error in classification: {str(e)}")
 
 @app.post("/legal/")
 async def legal_compliance(query: str = Form(...)):
     """Get legal compliance information from RAG system."""
+    load_models()
     try:
         response = query_engine.query(query)
         return {"response": str(response)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error in legal compliance: {str(e)}")
-
-@app.post("/process/")
-async def process_input(
-    image: UploadFile = None,
-    audio: UploadFile = None,
-    query: str = Form(None)
-):
-    """Process input (speech, image, or text) and return relevant compliance information."""
-    result = {}
-    
-    try:
-        if audio:
-            audio_result = await speech_to_text(audio)
-            result["stt"] = audio_result
-            query = audio_result.get("transcription", "")
-
-        if image:
-            waste_result = await classify_waste(image)
-            result["waste_classification"] = waste_result
-
-        if query:
-            legal_result = await legal_compliance(query)
-            result["legal_compliance"] = legal_result
-
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
