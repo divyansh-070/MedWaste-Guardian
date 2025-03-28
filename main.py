@@ -106,5 +106,9 @@ async def legal_compliance(query: str = Form(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error in legal compliance: {str(e)}")
 
+@app.get("/")
+async def root():
+    return {"message": "MedWaste Guardian API is running!"}
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
