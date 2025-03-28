@@ -15,10 +15,8 @@ async function startRecording() {
             socket.send(event.data);
         }
     };
-
-    mediaRecorder.start(500);  // Send audio every 500ms
+    mediaRecorder.start(500);  
 }
-
 async function sendTextRequest() {
     const textInput = document.getElementById("text-input").value;
     const formData = new FormData();
