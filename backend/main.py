@@ -16,8 +16,8 @@ app = FastAPI()
 
 # --- Load Models ---
 yolo_model = YOLO("/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/yolov8_medical_waste_best.pt")
-vosk_model = Model("/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/vosk-model-en-in-0.5")  # Load Vosk Model
-recognizer = KaldiRecognizer(vosk_model, 16000)  # Initialize Speech Recognizer
+vosk_model = Model("/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/vosk-model-en-in-0.5") 
+recognizer = KaldiRecognizer(vosk_model, 16000)  
 
 # Load LLaMA-based legal compliance retriever
 index_dir = "/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/medwaste_index"
