@@ -20,12 +20,12 @@ vosk_model = Model("/Users/devayushrout/Desktop/MedWaste Guardian/backend/models
 recognizer = KaldiRecognizer(vosk_model, 16000)  
 
 # Load LLaMA-based legal compliance retriever
-index_dir = "/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/medwaste_index"
+index_dir = "/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/medwaste_index2"
 storage_context = StorageContext.from_defaults(persist_dir=index_dir)
 index = load_index_from_storage(storage_context)
 
 llm = HuggingFaceLLM(
-    model_name="meta-llama/Llama-2-7b-chat-hf",
+    model_name="meta-llama/Llama-3.2-1B-Instruct",
     model_kwargs={"cache_dir": "/Users/devayushrout/.cache/huggingface"}
 )
 query_engine = index.as_query_engine(llm=llm)
