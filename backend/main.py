@@ -4,12 +4,16 @@ import json
 import torch
 import cv2
 import numpy as np
-import wave
-from io import BytesIO
 from vosk import Model, KaldiRecognizer
 from ultralytics import YOLO
 from llama_index.core import VectorStoreIndex, StorageContext, load_index_from_storage
 from llama_index.llms.huggingface import HuggingFaceLLM
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core import Settings
+
+# ✅ FORCE LlamaIndex to use local embeddings
+embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+Settings.embed_model = embed_model  # ✅ This ensures NO OpenAI is used
 
 # Initialize FastAPI
 app = FastAPI()
@@ -19,24 +23,20 @@ yolo_model = YOLO("/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/
 vosk_model = Model("/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/vosk-model-en-in-0.5") 
 recognizer = KaldiRecognizer(vosk_model, 16000)  
 
-# Load LLaMA-based legal compliance retriever
+# --- Load Legal Compliance Index ---
 index_dir = "/Users/devayushrout/Desktop/MedWaste Guardian/backend/models/medwaste_index2"
 storage_context = StorageContext.from_defaults(persist_dir=index_dir)
-index = load_index_from_storage(storage_context)
+index = load_index_from_storage(storage_context)  # ✅ This now uses the local embeddings
 
-llm = HuggingFaceLLM(
-    model_name="meta-llama/Llama-3.2-1B-Instruct",
-    model_kwargs={"cache_dir": "/Users/devayushrout/.cache/huggingface"}
-)
+# Load LLaMA-3 locally
+llm = HuggingFaceLLM(model_name="meta-llama/Llama-3.2-1B-Instruct")
+
 query_engine = index.as_query_engine(llm=llm)
 
-# --- Real-time Speech-to-Text ---
+# --- Speech Recognition API ---
 @app.websocket("/ws/speech")
 async def websocket_endpoint(websocket: WebSocket):
-    """WebSocket for real-time speech recognition."""
     await websocket.accept()
-    print("Client connected for speech recognition.")
-
     try:
         while True:
             audio_chunk = await websocket.receive_bytes()
@@ -46,22 +46,20 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         print("Connection closed:", e)
 
-# --- Text Processing (Legal Compliance Query) ---
+# --- Legal Compliance Query API ---
 @app.post("/process-text")
 async def process_text(query: str = Form(...)):
-    """Retrieves legal compliance information based on text input."""
     response = query_engine.query(query)
     return {"message": response}
 
-# --- Image Processing (Waste Classification) ---
+# --- Image Processing API ---
 @app.post("/process-image")
 async def process_image(file: UploadFile = File(...)):
-    """Classifies biomedical waste using YOLOv8."""
     image_data = await file.read()
     image_np = np.frombuffer(image_data, np.uint8)
     image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
 
-    results = yolo_model(image)  # Run YOLO detection
+    results = yolo_model(image)  
     detections = results[0].boxes.data.cpu().numpy()
 
     output = [{"label": "Waste", "confidence": float(d[4])} for d in detections]
