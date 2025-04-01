@@ -13,7 +13,7 @@ from llama_index.core import Settings
 
 # ✅ FORCE LlamaIndex to use local embeddings
 embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
-Settings.embed_model = embed_model  # ✅ This ensures NO OpenAI is used
+Settings.embed_model = embed_model 
 
 # Initialize FastAPI
 app = FastAPI()
