@@ -22,7 +22,7 @@ Settings.embed_model = embed_model
 # === Load Falcon-RW-1B model + tokenizer with offloading support ===
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-1B-Instruct",
-    device = torch.device("cpu"),
+    torch_dtype=torch.float32,
     offload_folder=None  # ✅ Ensure this folder exists
 )
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")

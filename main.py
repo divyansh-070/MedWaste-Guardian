@@ -14,11 +14,11 @@ Settings.embed_model = embed_model
 # === Load Falcon-RW-1B model and tokenizer manually with offloading support ===
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-1B-Instruct",
-    device = torch.device("cpu"),
+    torch_dtype=torch.float32,
     offload_folder=None  # ✅ Disk offloading directory
 )
 
-tokenizer = AutoTokenizer.from_pretrained("tiiuae/falcon-rw-1b")
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
 
 # === Set HuggingFace LLM model for response generation ===
 Settings.llm = HuggingFaceLLM(
