@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedWaste AI</title>
+    
+    <!-- Embedded CSS -->
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: black;
+            color: white;
+            min-height: 100vh;
+            line-height: 1.5;
+            flex-direction:column;
+            justify-content:center
+        }
+
+        .image-gradient{
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .layer-blur{
+            height: 0;
+            width: 30rem;
+            position: absolute;
+            top: 20%;
+            right: 0%;
+            box-shadow: 0 0 700px 15px white;
+            rotate: -30deg;
+            z-index: -1;
+        }
+
+        .container{
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5rem;
+            z-index: 999;
+        }
+
+        header h1{
+            margin: 0;
+            font-size: 3 rem;
+            font-weight: 300;
+        }
+
+        nav{
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            margin-left: -5%;
+        }
+
+        nav a{
+            font-size: 1rem;
+            letter-spacing: 0.1rem;
+            transition: color 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .btn-signing{
+            background-color: white;
+            color: black;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        nav a:hover{
+            color: white;
+        }
+
+        .btn-signing{
+            background-color: rgb(26, 21, 21);
+            color: rgb(179, 132, 159);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.8);
+        }
+
+        .btn-signing:hover {
+            background-color: rgb(29, 27, 27);
+        }
+
+        main{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding-bottom: 3rem;
+        }
+
+        .content{
+            max-width: 40rem;
+            margin-left: 10%;
+            z-index: 999;
+        }
+
+        .tag-box{
+            position: relative;
+            width: rem;
+            height: 3rem;
+            border-radius: 50px;
+            background: linear-gradient(to right, #656565, #7f42a7, #6600c5, #5300a0, #757575, #656565);
+            background-size: 200%;
+            animation: animationGradient 2.5s linear infinite;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+
+        @keyframes animationGradient{
+            to{
+                background-position: 200%;
+            }
+        }
+
+        .tag-box .tag{
+            position: absolute;
+            inset: 3px 3px 3px 3px;
+            background-color: black;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            padding: 0 1rem;
+            transition: 0.5s ease;
+        }
+
+        .tag-box .tag:hover{
+            color: #5300a0;
+        }
+
+        .content h1 {
+            font-size:2rem;
+            font-weight:600;
+            letter-spacing:0.1em;
+            margin: 2rem 0;
+            line-height: 1.2;
+            text-shadow: 0 0 10px rgba(128,128,128,0.418);
+        }
+
+        .description{
+            font-size:1.3rem;
+            letter-spacing: 0.05em;
+            max-width: 35rem;
+            color: gray;
+        }
+
+        .buttons{
+            display:flex;
+            gap:1.5rem; 
+            margin-top:1.5rem;
+        }
+
+        .btn-get-started{
+            text-decoration:none;
+            border: 1.2px solid #292b47;
+            padding: 0.2rem 1.2rem;
+            border-radius:50px;
+            font-size:1.2rem;
+            font-weight:600;
+            letter-spacing:0.1em;
+            transition:background-color 0.2s ease, box-shadow 0.3s ease;
+            color: #d49ad4;
+            background-color: transparent;
+            box-shadow: 0 0 15px rgba(216, 191, 216, 0.8);
+        }
+
+        .btn-get-started:hover {
+            background-color: rgba(216, 191, 216, 0.2);
+            box-shadow: 0 0 20px rgba(216, 191, 216, 1);
+        }
+
+        .robot-3d{
+            position: absolute;
+            top:0;
+            right: -23%;
+        }
+
+        @media(max-width:1300px){
+            header{
+                padding:1rem 0.5rem;
+            }
+            .content{
+                margin-top:85%;
+            }
+            .robot-3d{
+                scale:0.8;
+                top:-20%;
+                right:2%
+            }
+        }
+
+        @media (max-width:768px){
+            header{
+                padding:1rem 0.1rem;
+            }
+            nav{
+                display:none;
+            }
+            header h1{
+                font-size:2rem;
+            }
+            .btn-signing{
+                padding: 0.6rem 1.5rem;
+            }
+            .content{
+                margin-top:25rem;
+            }
+            .robot-3d{
+                scale:0.5;
+                top:-25%;
+                right:0%;
+            }
+            .content {
+                max-width: 30rem;
+                margin-left: 10%;
+            }
+            .tag-box{
+                width:12rem;
+            }
+            .content h1{
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <img class="image-gradient" src="{{ url_for('static', filename='gradient.png') }}" alt="gradient">
+    <div class="layer-blur"></div>
+
+    <div class="container">
+        <header>
+            <h1 class="logo">MED WASTE</h1>
+            <nav>
+                <a href="#">DESCRIPTION</a>
+                <a href="#">ABOUT</a>
+                <a href="#">TESTIMONIAL</a>
+                <a href="#">FUTURE ROADMAP</a>
+            </nav>
+            <button class="btn-signing">LOG IN</button>
+        </header>
+
+        <main>
+            <div class="content">
+                <div class="tag-box">
+                    <div class="tag">AI-DRIVEN BIOMEDICAL WASTE MANAGEMENT &wedbar;</div>
+                </div>
+
+                <h1>MULTI-AGENT AI FOR<br> WASTE CLASSIFICATION & LEGAL COMPLIANCE</h1>
+                <p class="description">
+                    MedWaste AI is a multi-agent AI system designed for automated biomedical waste classification
+                    and legal compliance.
+                </p>
+
+                <div class="buttons">
+                    <!-- Speech Input -->
+                    <button onclick="startRecording()" class="btn-get-started">Speech</button>
+
+                    <!-- Text Input -->
+                    <input type="text" id="textInput" placeholder="Enter legal query">
+                    <button onclick="sendText()" class="btn-get-started">Text</button>
+
+                    <!-- Image Input -->
+                    <input type="file" id="imageInput" accept="image/*">
+                    <button onclick="uploadImage()" class="btn-get-started">Image</button>
+                </div>
+
+                <h3>Response:</h3>
+                <p id="output"></p>
+            </div>
+        </main>
+
+        <!-- 3D Robot -->
+        <spline-viewer class="robot-3d" url="https://prod.spline.design/i4imzoUBeMfjljPj/scene.splinecode"></spline-viewer>
+    </div>
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.79/build/spline-viewer.js"></script>
+    <script>
+        function uploadImage() {
+            const file = document.getElementById("imageInput").files[0];
+            if (!file) {
+                document.getElementById("output").innerText = "Please select an image file.";
+                return;
+            }
+    
+            const formData = new FormData();
+            formData.append("image", file);
+    
+            fetch("/predict/image", { method: "POST", body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.classification) {
+                        const imageDesc = `Image classification result: ${JSON.stringify(data.classification)}`;
+                        return fetch("/query", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query: imageDesc })
+                        });
+                    } else {
+                        throw new Error(data.error || "No classification result.");
+                    }
+                })
+                .then(response => response.json())
+                .then(llmData => {
+                    document.getElementById("output").innerText = llmData.response;
+                })
+                .catch(err => {
+                    console.error("Image error:", err);
+                    document.getElementById("output").innerText = `Error: ${err.message}`;
+                });
+        }
+    
+        function sendText() {
+            const text = document.getElementById("textInput").value.trim();
+            if (!text) {
+                document.getElementById("output").innerText = "Please enter a query.";
+                return;
+            }
+    
+            fetch("/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText = data.response || data.error || "No response.";
+            })
+            .catch(err => {
+                console.error("Text error:", err);
+                document.getElementById("output").innerText = `Error: ${err.message}`;
+            });
+        }
+    
+        let mediaRecorder;
+        let audioChunks = [];
+    
+        async function startRecording() {
+            document.getElementById("output").innerText = "Recording...";
+    
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+                audioChunks = [];
+    
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+    
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+                    const formData = new FormData();
+                    formData.append("audio", audioBlob, "recorded_audio.webm");
+    
+                    fetch("/predict/speech", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(speechData => {
+                        if (speechData.response) {
+                            return fetch("/query", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ query: speechData.response })
+                            });
+                        } else {
+                            throw new Error(speechData.error || "Speech recognition failed.");
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(llmData => {
+                        document.getElementById("output").innerText = llmData.response;
+                    })
+                    .catch(err => {
+                        console.error("Speech error:", err);
+                        document.getElementById("output").innerText = `Error: ${err.message}`;
+                    });
+                };
+    
+                mediaRecorder.start();
+    
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, 5000);
+            } catch (err) {
+                console.error("Recording error:", err);
+                document.getElementById("output").innerText = `Error accessing microphone: ${err.message}`;
+            }
+        }
+    </script>
+    
+    
+</body>
+</html>
