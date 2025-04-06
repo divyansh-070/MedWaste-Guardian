@@ -1,0 +1,13 @@
+transformers>=4.38.0
+langchain
+llama-index>=0.10.20
+llama-index-llms-huggingface
+llama-index-embeddings-huggingface
+sentence_transformers
+torch>=2.0
+accelerate
+bitsandbytes
+pypdf
+huggingface_hub
+uvicorn
+fastapi

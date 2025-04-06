@@ -12,6 +12,8 @@ drive.mount('/content/drive')
 
 !pip install -q transformers langchain llama-index llama-index-embeddings-huggingface
 !pip install -q pypdf sentence_transformers accelerate bitsandbytes
+!pip install llama-index transformers torch accelerate bitsandbytes
+!pip install --upgrade llama-index llama-index-llms-huggingface transformers torch accelerate bitsandbytes
 
 # Import required libraries
 from llama_index.readers.file import PDFReader
@@ -34,6 +36,11 @@ from llama_index.core.prompts.prompts import SimpleInputPrompt
 # Define query wrapper prompt
 query_wrapper_prompt = SimpleInputPrompt("<|USER|>{query_str}<|ASSISTANT|>")
 
+!huggingface-cli login
+
+# Install necessary dependencies (if not installed)
+!pip install --upgrade llama-index llama-index-llms-huggingface transformers torch accelerate bitsandbytes
+
 from llama_index.llms.huggingface import HuggingFaceLLM
 from transformers import BitsAndBytesConfig
 import torch
@@ -46,16 +53,15 @@ bnb_config = BitsAndBytesConfig(
 
 # Set the device
 device = "cuda" if torch.cuda.is_available() else "cpu"
-
-# Initialize the LLM
+# Initialize the LLaMA-2 model
 llm = HuggingFaceLLM(
     context_window=4096,
     max_new_tokens=256,
     generate_kwargs={"temperature": 1.0, "do_sample": False},  # ✅ Fixed temperature issue
     system_prompt=system_prompt,
     query_wrapper_prompt=query_wrapper_prompt,
-    tokenizer_name="meta-llama/Llama-2-7b-chat-hf",
-    model_name="meta-llama/Llama-2-7b-chat-hf",
+    tokenizer_name="meta-llama/Llama-3.2-1B-Instruct",
+    model_name="meta-llama/Llama-3.2-1B-Instruct",
     device_map="auto",  # Auto-assigns layers across GPU/CPU
     model_kwargs={"torch_dtype": torch.float16, "quantization_config": bnb_config}
 )
@@ -71,24 +77,48 @@ embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-
 
 print("Embedding model loaded successfully on:", device)
 
+from huggingface_hub import login
+from transformers import AutoTokenizer
 from llama_index.core import Settings
-# Apply configurations using Settings
+from llama_index.llms.huggingface import HuggingFaceLLM
+
+
+# ✅ Load tokenizer for LLaMA-2
+model_name = "meta-llama/Llama-3.2-1B-Instruct"
+tokenizer = AutoTokenizer.from_pretrained(model_name, token=True)  # Updated argument
+
+# ✅ Ensure LlamaIndex doesn't default to OpenAI
+Settings.llm = None
+
+# ✅ Load LLaMA-2 model
+llm = HuggingFaceLLM(model_name=model_name, tokenizer=tokenizer)
+
+# ✅ Set LLaMA-2 as the LLM in LlamaIndex
 Settings.llm = llm
-Settings.embed_model = embed_model
-Settings.chunk_size = 1024  # Set chunk size for better processing
+
+print("✅ LLaMA-2 is now the active LLM:", Settings.llm.model_name)  # Avoid recursion error
 
 from llama_index.readers.file import PDFReader
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, Settings
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
+#Use local embeddings instead of OpenAI
+embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+Settings.embed_model = embed_model  # Ensure LlamaIndex uses this embedding model
 
+#Load PDF
 pdf_path = "/content/drive/MyDrive/Colab Notebooks/edit2016.pdf"
 documents = PDFReader().load_data(file=pdf_path)
 
-# Create the index
+#Create the index
 index = VectorStoreIndex.from_documents(documents, settings=Settings)
 
+print("Index created successfully!")
+
 # Create a query engine from the index
-query_engine = index.as_query_engine()
+query_engine = index.as_query_engine(llm=llm)
+
+
 
 # Example query
 response = query_engine.query("How to dispose of syringes?")
@@ -111,3 +141,6 @@ files.download("/content/medwaste_guardian_rag.zip")
 #pip install sentence_transformers
 #pip install -U llama-index-embeddings-huggingface langchain langchain-community
 #pip install fastapi uvicorn
+
+response = query_engine.query("What are the biomedical waste disposal rules for human anatomical waste?")
+print(response)
