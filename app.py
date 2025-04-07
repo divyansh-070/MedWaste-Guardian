@@ -7,7 +7,6 @@ from ultralytics import YOLO
 import speech_recognition as sr
 import ffmpeg
 import os
-
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from transformers import AutoModelForCausalLM, AutoTokenizer
