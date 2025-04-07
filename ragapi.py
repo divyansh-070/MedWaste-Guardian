@@ -83,10 +83,8 @@ async def query_rag(request: QueryRequest):
                 "Try asking about medical waste topics like disposal or biohazards."
             )
         }
-
     return {"response": response_text}
 
-# ✅ Run FastAPI server
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
