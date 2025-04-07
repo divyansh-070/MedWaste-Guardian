@@ -24,7 +24,7 @@ tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
 Settings.llm = HuggingFaceLLM(
     model=model,
     tokenizer=tokenizer,
-    context_window=4096,  # ✅ Limit context to model's max
+    context_window=4096, 
     max_new_tokens=256,
     generate_kwargs={"temperature": 0.7, "do_sample": True},
 )
