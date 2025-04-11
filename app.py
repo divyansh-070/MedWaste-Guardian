@@ -79,6 +79,8 @@ def query():
 
 import requests
 
+import requests
+
 @app.route("/predict/image", methods=["POST"])
 def predict_image():
     try:
@@ -92,8 +94,9 @@ def predict_image():
 
         if results and len(results) > 0:
             output = []
-            class_names = model.names  # 🧠 YOLO class labels
+            class_names = model.names
 
+            # 📦 Collect predicted object labels
             for box in results[0].boxes:
                 x1, y1, x2, y2 = box.xyxy[0].tolist()
                 cls_id = int(box.cls[0])
@@ -106,28 +109,28 @@ def predict_image():
                     "bbox": [x1, y1, x2, y2]
                 })
 
-                # ✅ Send RAG query to FastAPI
-                query = f"What are the biomedical waste disposal rules for {label}?"
-                try:
-                    rag_response = requests.post(
-                        "http://127.0.0.1:8000/query/",
-                        json={"query": query}
-                    )
-                    rag_data = rag_response.json()
-                    answer = rag_data.get("response", "No response from RAG engine.")
-                except Exception as rag_error:
-                    answer = f"Error fetching RAG response: {str(rag_error)}"
+            # 🚀 Send RAG query to FastAPI backend
+            first_label = output[0]["label"]
+            query = f"How should I dispose a {first_label} in biomedical waste management?"
 
-                return jsonify({
-                    "classification": output,
-                    "answer": answer
-                })
+            response = requests.post(
+                "http://127.0.0.1:8000/query/",
+                json={"query": query}
+            )
+
+            rag_answer = response.json().get("response", "No guidance available")
+
+            return jsonify({
+                "classification": output,
+                "disposal_guidance": rag_answer
+            })
 
         else:
             return jsonify({"classification": "No object detected"})
 
     except Exception as e:
         return jsonify({"error": f"Image prediction failed: {str(e)}"}), 500
+
 
 
 @app.route("/predict/speech", methods=["POST"])
