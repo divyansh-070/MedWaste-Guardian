@@ -321,14 +321,16 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.classification) {
-                        // Show the classification result
-                        document.getElementById("output").innerHTML = `<b>Detected Object:</b> ${data.classification}<br><i>Querying disposal guidance...</i>`;
+                        const classification = data.classification;
         
-                        // Now query RAG system
+                        // Show detected class
+                        document.getElementById("output").innerHTML = `<b>Detected Object:</b> ${classification}<br><i>Fetching disposal guidance...</i>`;
+        
+                        // Now send to RAG query endpoint
                         return fetch("/query", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ query: data.classification })
+                            body: JSON.stringify({ query: classification })
                         });
                     } else {
                         throw new Error(data.error || "No classification result.");
@@ -336,7 +338,7 @@
                 })
                 .then(response => response.json())
                 .then(llmData => {
-                    // Append the guidance to existing output
+                    // Show RAG output
                     document.getElementById("output").innerHTML += `<br><b>Disposal Guidance:</b> ${llmData.response}`;
                 })
                 .catch(err => {
