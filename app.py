@@ -86,11 +86,25 @@ def predict_image():
 
         img_bytes = np.frombuffer(image_file.read(), np.uint8)
         img = cv2.imdecode(img_bytes, cv2.IMREAD_COLOR)
-        results = yolo_model.predict(img)
+        results = model.predict(img)
 
         if results and len(results) > 0:
-            data = results[0].boxes.data.cpu().numpy().tolist()
-            return jsonify({"classification": data})
+            output = []
+            class_names = model.names  # 🧠 YOLO class labels
+
+            for box in results[0].boxes:
+                x1, y1, x2, y2 = box.xyxy[0].tolist()
+                cls_id = int(box.cls[0])
+                label = class_names[cls_id]
+                conf = float(box.conf[0])
+
+                output.append({
+                    "label": label,
+                    "confidence": round(conf, 2),
+                    "bbox": [x1, y1, x2, y2]
+                })
+
+            return jsonify({"classification": output})
         else:
             return jsonify({"classification": "No object detected"})
     except Exception as e:
