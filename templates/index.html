@@ -622,10 +622,10 @@
                 document.getElementById("output").innerText = "Please select an image file.";
                 return;
             }
-    
+        
             const formData = new FormData();
             formData.append("image", file);
-    
+        
             fetch("/predict/image", { method: "POST", body: formData })
                 .then(response => response.json())
                 .then(data => {
@@ -642,13 +642,14 @@
                 })
                 .then(response => response.json())
                 .then(llmData => {
-                    document.getElementById("output").innerText = llmData.response;
+                    document.getElementById("output").innerText = llmData.response || "No guidance received.";
                 })
                 .catch(err => {
                     console.error("Image error:", err);
                     document.getElementById("output").innerText = `Error: ${err.message}`;
                 });
         }
+        
     
         function sendText() {
             const text = document.getElementById("textInput").value.trim();
