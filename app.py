@@ -11,6 +11,7 @@ from ultralytics import YOLO
 import speech_recognition as sr
 import ffmpeg
 import os
+import requests
 
 # === Flask App Setup ===
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -20,13 +21,13 @@ CORS(app)
 embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
 Settings.embed_model = embed_model
 
-# === LLM (Falcon-RW-1B - lightweight and good for local RAG) ===
+# === LLM (Meta LLaMA-3.2-1B-Instruct) ===
 model = AutoModelForCausalLM.from_pretrained(
-    "tiiuae/falcon-rw-1b",
-    torch_dtype=torch.float32,  # or float16 if you're on GPU
+    "meta-llama/Llama-3.2-1B-Instruct",
+    torch_dtype=torch.float32,
     device_map="auto"
 )
-tokenizer = AutoTokenizer.from_pretrained("tiiuae/falcon-rw-1b")
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
 
 Settings.llm = HuggingFaceLLM(
     model=model,
@@ -40,16 +41,16 @@ Settings.llm = HuggingFaceLLM(
 try:
     storage_context = StorageContext.from_defaults(persist_dir="./medwaste_index")
     index = load_index_from_storage(storage_context)
-    print("RAG index loaded successfully.")
+    print("✅ RAG index loaded successfully.")
 except Exception as e:
-    print(f"Error loading RAG index: {e}")
+    print(f"❌ Error loading RAG index: {e}")
 
 # === Load YOLOv8 Model ===
 try:
     yolo_model = YOLO("backend/models/yolov8_medical_waste_best.pt")
-    print("YOLO model loaded successfully.")
+    print("✅ YOLO model loaded successfully.")
 except Exception as e:
-    print(f"Error loading YOLO model: {e}")
+    print(f"❌ Error loading YOLO model: {e}")
 
 # === Truncate Long Input Text ===
 def truncate_text(text, max_tokens=200):
@@ -77,8 +78,6 @@ def query():
     except Exception as e:
         return jsonify({"error": f"Query failed: {str(e)}"}), 500
 
-import requests
-
 @app.route("/predict/image", methods=["POST"])
 def predict_image():
     try:
@@ -88,13 +87,12 @@ def predict_image():
 
         img_bytes = np.frombuffer(image_file.read(), np.uint8)
         img = cv2.imdecode(img_bytes, cv2.IMREAD_COLOR)
-        results = model.predict(img)
+        results = yolo_model.predict(img)
 
         if results and len(results) > 0:
             output = []
-            class_names = model.names  # 🧠 YOLO class labels
+            class_names = yolo_model.names  # YOLO class labels
 
-            # Get the top detected label (first one)
             box = results[0].boxes[0]
             x1, y1, x2, y2 = box.xyxy[0].tolist()
             cls_id = int(box.cls[0])
@@ -107,7 +105,6 @@ def predict_image():
                 "bbox": [x1, y1, x2, y2]
             })
 
-            # 🧠 Send to RAG API for disposal guidance
             rag_response = requests.post(
                 "http://localhost:8000/query/",
                 json={"query": f"How to dispose {label} in biomedical waste?"}
@@ -119,15 +116,11 @@ def predict_image():
                 "classification": output,
                 "disposal_guidance": disposal_guidance
             })
-
         else:
             return jsonify({"classification": "No object detected"})
 
     except Exception as e:
         return jsonify({"error": f"Image prediction failed: {str(e)}"}), 500
-
-
-
 
 @app.route("/predict/speech", methods=["POST"])
 def predict_speech():
