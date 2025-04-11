@@ -363,62 +363,51 @@
             });
         }
     
-        let mediaRecorder;
-        let audioChunks = [];
-    
-        async function startRecording() {
-            document.getElementById("output").innerText = "Recording...";
-    
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-                audioChunks = [];
-    
-                mediaRecorder.ondataavailable = event => {
-                    audioChunks.push(event.data);
-                };
-    
-                mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-                    const formData = new FormData();
-                    formData.append("audio", audioBlob, "recorded_audio.webm");
-    
-                    fetch("/predict/speech", {
-                        method: "POST",
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(speechData => {
-                        if (speechData.response) {
-                            return fetch("/query", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ query: speechData.response })
-                            });
-                        } else {
-                            throw new Error(speechData.error || "Speech recognition failed.");
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(llmData => {
-                        document.getElementById("output").innerText = llmData.response;
-                    })
-                    .catch(err => {
-                        console.error("Speech error:", err);
-                        document.getElementById("output").innerText = `Error: ${err.message}`;
-                    });
-                };
-    
-                mediaRecorder.start();
-    
-                setTimeout(() => {
-                    mediaRecorder.stop();
-                }, 5000);
-            } catch (err) {
-                console.error("Recording error:", err);
-                document.getElementById("output").innerText = `Error accessing microphone: ${err.message}`;
-            }
-        }
-    </script>
+        <button onclick="startListening()">🎙️ Speak Now</button>
+<div id="output"></div>
+
+<script>
+function startListening() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    document.getElementById("output").innerText = "🎧 Listening...";
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("output").innerHTML = `<b>You said:</b> ${transcript}<br><i>Fetching guidance...</i>`;
+
+        fetch("/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: transcript })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("output").innerHTML += `<br><b>Disposal Guidance:</b> ${data.response}`;
+
+            // Optional: Speak it out loud
+            const utter = new SpeechSynthesisUtterance(data.response);
+            speechSynthesis.speak(utter);
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("output").innerText = "❌ Error fetching response.";
+        });
+    };
+
+    recognition.onerror = function(event) {
+        console.error("Speech error:", event.error);
+        document.getElementById("output").innerText = "❌ Speech recognition error.";
+    };
+}
+</script>
+
 </body>
 </html>
+
+<!-- End of HTML Document -->
