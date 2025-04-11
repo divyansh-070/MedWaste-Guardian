@@ -339,74 +339,45 @@
                 });
         }
         
-        
-        
-        function sendText() {
-            const text = document.getElementById("textInput").value.trim();
-            if (!text) {
-                document.getElementById("output").innerText = "Please enter a query.";
-                return;
-            }
-    
-            fetch("/query", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: text })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("output").innerText = data.response || data.error || "No response.";
-            })
-            .catch(err => {
-                console.error("Text error:", err);
-                document.getElementById("output").innerText = `Error: ${err.message}`;
-            });
+        function startListening() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            document.getElementById("output").innerText = "🎧 Listening...";
+
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById("output").innerHTML = `<b>You said:</b> ${transcript}<br><i>Fetching guidance...</i>`;
+
+                fetch("/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: transcript })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("output").innerHTML += `<br><b>Disposal Guidance:</b> ${data.response}`;
+
+                    // Optional: Speak it out loud
+                    const utter = new SpeechSynthesisUtterance(data.response);
+                    speechSynthesis.speak(utter);
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById("output").innerText = "❌ Error fetching response.";
+                });
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech error:", event.error);
+                document.getElementById("output").innerText = "❌ Speech recognition error.";
+            };
         }
-    
-        <button onclick="startListening()">🎙️ Speak Now</button>
-<div id="output"></div>
-
-<script>
-function startListening() {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    document.getElementById("output").innerText = "🎧 Listening...";
-
-    recognition.start();
-
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("output").innerHTML = `<b>You said:</b> ${transcript}<br><i>Fetching guidance...</i>`;
-
-        fetch("/query", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: transcript })
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("output").innerHTML += `<br><b>Disposal Guidance:</b> ${data.response}`;
-
-            // Optional: Speak it out loud
-            const utter = new SpeechSynthesisUtterance(data.response);
-            speechSynthesis.speak(utter);
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById("output").innerText = "❌ Error fetching response.";
-        });
-    };
-
-    recognition.onerror = function(event) {
-        console.error("Speech error:", event.error);
-        document.getElementById("output").innerText = "❌ Speech recognition error.";
-    };
-}
-</script>
-
+    </script>
 </body>
 </html>
 
