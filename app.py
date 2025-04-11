@@ -77,6 +77,8 @@ def query():
     except Exception as e:
         return jsonify({"error": f"Query failed: {str(e)}"}), 500
 
+import requests
+
 @app.route("/predict/image", methods=["POST"])
 def predict_image():
     try:
@@ -104,11 +106,29 @@ def predict_image():
                     "bbox": [x1, y1, x2, y2]
                 })
 
-            return jsonify({"classification": output})
+                # ✅ Send RAG query to FastAPI
+                query = f"What are the biomedical waste disposal rules for {label}?"
+                try:
+                    rag_response = requests.post(
+                        "http://127.0.0.1:8000/query/",
+                        json={"query": query}
+                    )
+                    rag_data = rag_response.json()
+                    answer = rag_data.get("response", "No response from RAG engine.")
+                except Exception as rag_error:
+                    answer = f"Error fetching RAG response: {str(rag_error)}"
+
+                return jsonify({
+                    "classification": output,
+                    "answer": answer
+                })
+
         else:
             return jsonify({"classification": "No object detected"})
+
     except Exception as e:
         return jsonify({"error": f"Image prediction failed: {str(e)}"}), 500
+
 
 @app.route("/predict/speech", methods=["POST"])
 def predict_speech():
