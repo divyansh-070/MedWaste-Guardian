@@ -363,7 +363,7 @@
         }
         
 
-        
+
         function startListening() {
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'en-US';
@@ -402,6 +402,7 @@
                 document.getElementById("output").innerText = "❌ Speech recognition error.";
             };
         }
+        
     </script>
 </body>
 </html>
