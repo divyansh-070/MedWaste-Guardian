@@ -320,32 +320,25 @@
             fetch("/predict/image", { method: "POST", body: formData })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.classification) {
-                        const classification = data.classification;
+                    if (data.classification && data.disposal_guidance) {
+                        const detected = data.classification[0]; // first detection
+                        const label = detected.label;
+                        const confidence = detected.confidence;
+                        const bbox = detected.bbox;
         
-                        // Show detected class
-                        document.getElementById("output").innerHTML = `<b>Detected Object:</b> ${classification}<br><i>Fetching disposal guidance...</i>`;
-        
-                        // Now send to RAG query endpoint
-                        return fetch("/query", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ query: classification })
-                        });
+                        document.getElementById("output").innerHTML =
+                            `<b>Detected Object:</b> ${label} (Confidence: ${confidence})<br>` +
+                            `<b>Disposal Guidance:</b> ${data.disposal_guidance}`;
                     } else {
-                        throw new Error(data.error || "No classification result.");
+                        throw new Error(data.error || "Detection failed.");
                     }
-                })
-                .then(response => response.json())
-                .then(llmData => {
-                    // Show RAG output
-                    document.getElementById("output").innerHTML += `<br><b>Disposal Guidance:</b> ${llmData.response}`;
                 })
                 .catch(err => {
                     console.error("Image error:", err);
                     document.getElementById("output").innerText = `Error: ${err.message}`;
                 });
         }
+        
         
         
         function sendText() {
