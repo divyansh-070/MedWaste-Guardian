@@ -79,8 +79,6 @@ def query():
 
 import requests
 
-import requests
-
 @app.route("/predict/image", methods=["POST"])
 def predict_image():
     try:
@@ -94,35 +92,32 @@ def predict_image():
 
         if results and len(results) > 0:
             output = []
-            class_names = model.names
+            class_names = model.names  # 🧠 YOLO class labels
 
-            # 📦 Collect predicted object labels
-            for box in results[0].boxes:
-                x1, y1, x2, y2 = box.xyxy[0].tolist()
-                cls_id = int(box.cls[0])
-                label = class_names[cls_id]
-                conf = float(box.conf[0])
+            # Get the top detected label (first one)
+            box = results[0].boxes[0]
+            x1, y1, x2, y2 = box.xyxy[0].tolist()
+            cls_id = int(box.cls[0])
+            label = class_names[cls_id]
+            conf = float(box.conf[0])
 
-                output.append({
-                    "label": label,
-                    "confidence": round(conf, 2),
-                    "bbox": [x1, y1, x2, y2]
-                })
+            output.append({
+                "label": label,
+                "confidence": round(conf, 2),
+                "bbox": [x1, y1, x2, y2]
+            })
 
-            # 🚀 Send RAG query to FastAPI backend
-            first_label = output[0]["label"]
-            query = f"How should I dispose a {first_label} in biomedical waste management?"
-
-            response = requests.post(
-                "http://127.0.0.1:8000/query/",
-                json={"query": query}
+            # 🧠 Send to RAG API for disposal guidance
+            rag_response = requests.post(
+                "http://localhost:8000/query/",
+                json={"query": f"How to dispose {label} in biomedical waste?"}
             )
-
-            rag_answer = response.json().get("response", "No guidance available")
+            rag_data = rag_response.json()
+            disposal_guidance = rag_data.get("response", "No disposal guidance found.")
 
             return jsonify({
                 "classification": output,
-                "disposal_guidance": rag_answer
+                "disposal_guidance": disposal_guidance
             })
 
         else:
@@ -130,6 +125,7 @@ def predict_image():
 
     except Exception as e:
         return jsonify({"error": f"Image prediction failed: {str(e)}"}), 500
+
 
 
 
