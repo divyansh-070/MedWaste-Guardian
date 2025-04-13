@@ -1,410 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedWaste AI</title>
-    
-    <!-- Embedded CSS -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedWaste Guardian</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: black;
-            color: white;
-            min-height: 100vh;
-            line-height: 1.5;
-            flex-direction: column;
-            justify-content: center;
-        }
+    .navbar {
+      width: 100%;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 6rem;
+    }
 
-        .image-gradient {
-            position: absolute;
-            top: 0;
-            right: 0;
-            opacity: 0.5;
-            z-index: -1;
-        }
+    .logo {
+      color: #008080;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
 
-        .layer-blur {
-            height: 0;
-            width: 30rem;
-            position: absolute;
-            top: 20%;
-            right: 0%;
-            box-shadow: 0 0 700px 15px white;
-            rotate: -30deg;
-            z-index: -1;
-        }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+      margin-right: 2rem;
+    }
 
-        .container {
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 2rem;
-            position: relative;
-            overflow: hidden;
-        }
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: background 0.3s, color 0.3s;
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 5rem;
-            z-index: 999;
-        }
+    .nav-links a:hover {
+      color: #008080;
+      background-color: #f0f0f0;
+    }
 
-        header h1 {
-            margin: 0;
-            font-size: 3 rem;
-            font-weight: 300;
-        }
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 3rem 2rem;
+      background: #f9f9f9;
+    }
 
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 3rem;
-            margin-left: -5%;
-        }
+    .hero-title {
+      font-size: 3rem;
+      color: black;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
 
-        nav a {
-            font-size: 1rem;
-            letter-spacing: 0.1rem;
-            transition: color 0.2s ease;
-            text-decoration: none;
-            color: inherit;
-        }
+    .hero-subtext {
+      font-size: 1.5rem;
+      color: #555;
+      max-width: 600px;
+    }
 
-        .btn-signing {
-            background-color: white;
-            color: black;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-            cursor: pointer;
-        }
+    .input-section {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
 
-        nav a:hover {
-            color: white;
-        }
+    .input-box {
+      background: #ffffff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
 
-        .btn-signing {
-            background-color: rgb(26, 21, 21);
-            color: rgb(179, 132, 159);
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(138, 43, 226, 0.8);
-        }
+    .input-box h2 {
+      margin-bottom: 0.5rem;
+    }
 
-        .btn-signing:hover {
-            background-color: rgb(29, 27, 27);
-        }
+    .input-box button {
+      padding: 0.5rem 1rem;
+      background-color: #008080;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
 
-        main {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 100vh;
-            padding-bottom: 3rem;
-        }
+    .input-box textarea {
+      width: 100%;
+      height: 100px;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: none;
+    }
 
-        .content {
-            max-width: 40rem;
-            margin-left: 10%;
-            z-index: 999;
-        }
+    .preview {
+      margin-top: 1rem;
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
 
-        .tag-box {
-            position: relative;
-            width: rem;
-            height: 3rem;
-            border-radius: 50px;
-            background: linear-gradient(to right, #656565, #7f42a7, #6600c5, #5300a0, #757575, #656565);
-            background-size: 200%;
-            animation: animationGradient 2.5s linear infinite;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
-        }
+    .result-box {
+      margin-top: 1rem;
+      background: #f0f0f0;
+      padding: 0.5rem;
+      border-radius: 6px;
+      min-height: 40px;
+    }
 
-        @keyframes animationGradient {
-            to {
-                background-position: 200%;
-            }
-        }
+    .info-section {
+      width: 100%;
+      padding: 2rem;
+      background: white;
+      text-align: center;
+    }
 
-        .tag-box .tag {
-            position: absolute;
-            inset: 3px 3px 3px 3px;
-            background-color: black;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            padding: 0 1rem;
-            transition: 0.5s ease;
-        }
+    .info-section.gray {
+      background: #f1f1f1;
+    }
 
-        .tag-box .tag:hover {
-            color: #5300a0;
-        }
+    .info-section h2 {
+      color: #008080;
+      margin-bottom: 0.5rem;
+    }
 
-        .content h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            margin: 2rem 0;
-            line-height: 1.2;
-            text-shadow: 0 0 10px rgba(128, 128, 128, 0.418);
-        }
+    form {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
 
-        .description {
-            font-size: 1.3rem;
-            letter-spacing: 0.05em;
-            max-width: 35rem;
-            color: gray;
-        }
+    form input[type="email"] {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px 0 0 6px;
+      width: 250px;
+    }
 
-        .buttons {
-            display: flex;
-            gap: 1.5rem; 
-            margin-top: 1.5rem;
-        }
+    form button {
+      padding: 0.5rem 1rem;
+      background: #008080;
+      color: white;
+      border: none;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+    }
 
-        .btn-get-started {
-            text-decoration: none;
-            border: 1.2px solid #292b47;
-            padding: 0.2rem 1.2rem;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            transition: background-color 0.2s ease, box-shadow 0.3s ease;
-            color: #d49ad4;
-            background-color: transparent;
-            box-shadow: 0 0 15px rgba(216, 191, 216, 0.8);
-        }
-
-        .btn-get-started:hover {
-            background-color: rgba(216, 191, 216, 0.2);
-            box-shadow: 0 0 20px rgba(216, 191, 216, 1);
-        }
-
-        .robot-3d {
-            position: absolute;
-            top: 0;
-            right: -23%;
-        }
-
-        @media(max-width: 1300px) {
-            header {
-                padding: 1rem 0.5rem;
-            }
-            .content {
-                margin-top: 85%;
-            }
-            .robot-3d {
-                scale: 0.8;
-                top: -20%;
-                right: 2%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            header {
-                padding: 1rem 0.1rem;
-            }
-            nav {
-                display: none;
-            }
-            header h1 {
-                font-size: 2rem;
-            }
-            .btn-signing {
-                padding: 0.6rem 1.5rem;
-            }
-            .content {
-                margin-top: 25rem;
-            }
-            .robot-3d {
-                scale: 0.5;
-                top: -25%;
-                right: 0%;
-            }
-            .content {
-                max-width: 30rem;
-                margin-left: 10%;
-            }
-            .tag-box {
-                width: 12rem;
-            }
-            .content h1 {
-                font-size: 2.5rem;
-            }
-        }
-    </style>
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #f0f0f0;
+      color: #555;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+  </style>
 </head>
-
 <body>
-    <img class="image-gradient" src="{{ url_for('static', filename='gradient.png') }}" alt="gradient">
-    <div class="layer-blur"></div>
+  <nav class="navbar">
+    <h1 class="logo">MedWaste Guardian</h1>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="#subscription">Subscription</a></li>
+    </ul>
+  </nav>
 
-    <div class="container">
-        <header>
-            <h1 class="logo">MED WASTE</h1>
-            <nav>
-                <a href="#">DESCRIPTION</a>
-                <a href="#">ABOUT</a>
-                <a href="#">TESTIMONIAL</a>
-                <a href="#">FUTURE ROADMAP</a>
-            </nav>
-            <button class="btn-signing">LOG IN</button>
-        </header>
+  <div class="hero-section">
+    <h1 class="hero-title">AI Medical Waste Disposal Assistant</h1>
+    <p class="hero-subtext">Get instant guidance on how to properly dispose of medical waste. Simply speak, type, or upload an image of the waste item.</p>
+  </div>
 
-        <main>
-            <div class="content">
-                <div class="tag-box">
-                    <div class="tag">AI-DRIVEN BIOMEDICAL WASTE MANAGEMENT &wedbar;</div>
-                </div>
-
-                <h1>MULTI-AGENT AI FOR<br> WASTE CLASSIFICATION & LEGAL COMPLIANCE</h1>
-                <p class="description">
-                    MedWaste AI is a multi-agent AI system designed for automated biomedical waste classification
-                    and legal compliance.
-                </p>
-
-                <div class="buttons">
-                    <!-- Speech Input -->
-                    <button onclick="startListening()" class="btn-get-started">Speech</button>
-
-                    <!-- Text Input -->
-                    <input type="text" id="textInput" placeholder="Enter legal query">
-                    <button onclick="sendText()" class="btn-get-started">Text</button>
-
-                    <!-- Image Input -->
-                    <input type="file" id="imageInput" accept="image/*">
-                    <button onclick="uploadImage()" class="btn-get-started">Image</button>
-                </div>
-
-                <h3>Response:</h3>
-                <p id="output"></p>
-            </div>
-        </main>
-
-        <!-- 3D Robot -->
-        <spline-viewer class="robot-3d" url="https://prod.spline.design/i4imzoUBeMfjljPj/scene.splinecode"></spline-viewer>
+  <section id="home" class="input-section">
+    <div class="input-box">
+      <h2>🎤 Speech to Text</h2>
+      <button onclick="startSpeechRecognition()">Start Speaking</button>
+      <p id="speechResult" class="result-box"></p>
     </div>
 
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.79/build/spline-viewer.js"></script>
-    <script>
-        function uploadImage() {
-            const file = document.getElementById("imageInput").files[0];
-            if (!file) {
-                document.getElementById("output").innerText = "Please select an image file.";
-                return;
-            }
-        
-            const formData = new FormData();
-            formData.append("image", file);
-        
-            fetch("/predict/image", { method: "POST", body: formData })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.classification && data.disposal_guidance) {
-                        const detected = data.classification[0]; // first detection
-                        const label = detected.label;
-                        const confidence = detected.confidence;
-                        const bbox = detected.bbox;
-        
-                        document.getElementById("output").innerHTML =
-                            `<b>Detected Object:</b> ${label} (Confidence: ${confidence})<br>` +
-                            `<b>Disposal Guidance:</b> ${data.disposal_guidance}`;
-                    } else {
-                        throw new Error(data.error || "Detection failed.");
-                    }
-                })
-                .catch(err => {
-                    console.error("Image error:", err);
-                    document.getElementById("output").innerText = `Error: ${err.message}`;
-                });
+    <div class="input-box">
+      <h2>📝 Text Input</h2>
+      <textarea id="textInput" placeholder="Type your input here..."></textarea>
+      <button onclick="sendText()">Submit</button>
+    </div>
+
+    <div class="input-box">
+      <h2>🖼️ Image Upload</h2>
+      <input type="file" accept="image/*" id="imageInput" onchange="previewImage(event)">
+      <img id="imagePreview" class="preview" />
+      <button onclick="uploadImage()">Analyze Image</button>
+    </div>
+
+    <div class="input-box">
+      <h2>💡 Output</h2>
+      <div id="output" class="result-box"></div>
+    </div>
+  </section>
+
+  <section id="about" class="info-section">
+    <h2>About</h2>
+    <p>MedWaste Guardian is an AI-powered assistant that helps healthcare workers dispose of biomedical waste safely and correctly...</p>
+  </section>
+
+  <section id="team" class="info-section gray">
+    <h2>Our Team</h2>
+    <p>We are developers and health professionals working together to improve medical waste management through AI.</p>
+  </section>
+
+  <section id="subscription" class="info-section">
+    <h2>Subscribe</h2>
+    <form>
+      <input type="email" placeholder="Enter your email" required />
+      <button type="submit">Subscribe</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 MedWaste Guardian. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function previewImage(event) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        const output = document.getElementById('imagePreview');
+        output.src = reader.result;
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function uploadImage() {
+      const file = document.getElementById("imageInput").files[0];
+      if (!file) {
+        document.getElementById("output").innerText = "Please select an image file.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      fetch("/predict/image", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.classification && data.disposal_guidance) {
+          const detected = data.classification[0];
+          const label = detected.label;
+          const confidence = detected.confidence;
+          document.getElementById("output").innerHTML =
+            `<b>Detected Object:</b> ${label} (Confidence: ${confidence})<br>` +
+            `<b>Disposal Guidance:</b> ${data.disposal_guidance}`;
+        } else {
+          throw new Error(data.error || "Detection failed.");
         }
+      })
+      .catch(err => {
+        document.getElementById("output").innerText = `Error: ${err.message}`;
+      });
+    }
 
+    function sendText() {
+      const text = document.getElementById("textInput").value.trim();
+      if (!text) {
+        document.getElementById("output").innerText = "Please enter a query.";
+        return;
+      }
 
-        function sendText() {
-            const text = document.getElementById("textInput").value.trim();
-            if (!text) {
-                document.getElementById("output").innerText = "Please enter a query.";
-                return;
-            }
-    
-            fetch("/query", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: text })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("output").innerText = data.response || data.error || "No response.";
-            })
-            .catch(err => {
-                console.error("Text error:", err);
-                document.getElementById("output").innerText = `Error: ${err.message}`;
-            });
+      fetch("/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: text })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.answer) {
+          document.getElementById("output").innerHTML = `<b>Guidance:</b> ${data.answer}`;
+        } else {
+          throw new Error(data.error || "No response.");
         }
-        
+      })
+      .catch(err => {
+        document.getElementById("output").innerText = `Error: ${err.message}`;
+      });
+    }
 
+    function startSpeechRecognition() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert("Your browser doesn't support Speech Recognition.");
+        return;
+      }
 
-        function startListening() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-            document.getElementById("output").innerText = "🎧 Listening...";
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("speechResult").innerText = transcript;
+        document.getElementById("textInput").value = transcript;
+      };
 
-            recognition.start();
+      recognition.onerror = function(event) {
+        document.getElementById("speechResult").innerText = "Speech recognition error.";
+      };
 
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById("output").innerHTML = `<b>You said:</b> ${transcript}<br><i>Fetching guidance...</i>`;
-
-                fetch("/query", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: transcript })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById("output").innerHTML += `<br><b>Disposal Guidance:</b> ${data.response}`;
-
-                    // Optional: Speak it out loud
-                    const utter = new SpeechSynthesisUtterance(data.response);
-                    speechSynthesis.speak(utter);
-                })
-                .catch(err => {
-                    console.error(err);
-                    document.getElementById("output").innerText = "❌ Error fetching response.";
-                });
-            };
-
-            recognition.onerror = function(event) {
-                console.error("Speech error:", event.error);
-                document.getElementById("output").innerText = "❌ Speech recognition error.";
-            };
-        }
-        
-    </script>
+      recognition.start();
+    }
+  </script>
 </body>
 </html>
-
-<!-- End of HTML Document -->

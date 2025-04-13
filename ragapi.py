@@ -14,11 +14,11 @@ Settings.embed_model = embed_model
 
 # === ✅ Lightweight Falcon-RW-1B LLM ===
 model = AutoModelForCausalLM.from_pretrained(
-    "tiiuae/falcon-rw-1b",
+    "meta-llama/Llama-3.2-1B-Instruct",
     torch_dtype=torch.float32,
     device_map="auto"  # Automatically selects CPU/GPU
 )
-tokenizer = AutoTokenizer.from_pretrained("tiiuae/falcon-rw-1b")
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
 
 Settings.llm = HuggingFaceLLM(
     model=model,

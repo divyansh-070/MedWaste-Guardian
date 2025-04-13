@@ -1,0 +1,243 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f9f9f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+/* Navigation Bar */
+.navbar {
+    width: 100%;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 6rem; /* Adjusted padding for slight centering */
+  }
+  
+  /* Logo */
+  .logo {
+    color: #008080;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  /* Navigation links */
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    margin-right: 2rem; /* Adjusted inward slightly */
+  }
+
+  .logo-text {
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .logo-text .title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: black; /* teal blue */
+    margin-bottom: 0.5rem;
+  }
+  
+  .logo-text .subtitle {
+    font-size: 1.5rem;
+    color: #555;
+    margin-top: 0;
+  }
+  
+  
+  .nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 0.5rem 1rem; /* Padding to allow background hover */
+    border-radius: 6px;
+    transition: background 0.3s, color 0.3s;
+  }
+  
+  .nav-links a:hover {
+    color: #008080;
+    background-color: #f0f0f0;
+  }
+  
+  .hero-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #f9f9f9;
+  }
+  
+  .hero-title {
+    font-size: 3rem;
+    color:  black; /* Teal blue */
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .hero-subtext {
+    font-size: 1.5rem;
+    color: #555;
+    max-width: 600px;
+  }
+  
+  
+  /* Input Section */
+  .input-section {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+  
+  .input-box {
+    background: #ffffff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+  
+  .input-box h2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .input-box button {
+    padding: 0.5rem 1rem;
+    background-color: #008080;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  
+  .input-box textarea {
+    width: 100%;
+    height: 100px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: none;
+  }
+  
+  .preview {
+    margin-top: 1rem;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
+  .result-box {
+    margin-top: 1rem;
+    background: #f0f0f0;
+    padding: 0.5rem;
+    border-radius: 6px;
+    min-height: 40px;
+  }
+  
+  /* Info Sections */
+  .info-section {
+    width: 100%;
+    padding: 2rem;
+    background: white;
+    text-align: center;
+  }
+  
+  .info-section.gray {
+    background: #f1f1f1;
+  }
+  
+  .info-section h2 {
+    color: #008080;
+    margin-bottom: 0.5rem;
+  }
+  
+  form {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  form input[type="email"] {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px 0 0 6px;
+    width: 250px;
+  }
+  
+  form button {
+    padding: 0.5rem 1rem;
+    background: #008080;
+    color: white;
+    border: none;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+  }
+  
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 1rem;
+    background: #f0f0f0;
+    color: #555;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  
+  /* Logo Display */
+  .logo-display-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+  }
+  
+  .logo-display-container .logo {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .logo-text {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #1f2937;
+  }
+  
+  .subtitle {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin-top: 0.25rem;
+  }
+  
+  /* Animation similar to Tailwind's animate-pulse */
+  @keyframes pulse-gentle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+  
+  .animate-pulse-gentle {
+    animation: pulse-gentle 2s infinite;
+  }
+  

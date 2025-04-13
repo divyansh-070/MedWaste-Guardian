@@ -25,7 +25,7 @@ Settings.embed_model = embed_model
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-1B-Instruct",
     torch_dtype=torch.float32,
-    device_map="auto"
+    device_map="cpu"
 )
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
 
@@ -61,7 +61,7 @@ def truncate_text(text, max_tokens=200):
 # === Routes ===
 @app.route("/")
 def home():
-    return render_template("text.html")
+    return render_template("index.html")
 
 @app.route("/query", methods=["POST"])
 def query():
