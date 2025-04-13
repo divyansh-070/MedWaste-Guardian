@@ -274,6 +274,8 @@
           const detected = data.classification[0];
           const label = detected.label;
           const confidence = detected.confidence;
+          const bbox = detected.bbox;
+          
           document.getElementById("output").innerHTML =
             `<b>Detected Object:</b> ${label} (Confidence: ${confidence})<br>` +
             `<b>Disposal Guidance:</b> ${data.disposal_guidance}`;
